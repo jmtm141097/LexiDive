@@ -37,7 +37,7 @@ Las palabras resaltadas (`man`, `sword`, `looked`, `dark`) aparecen marcadas vis
 
 ```bash
 # 1. Clonar o descargar el repositorio
-git clone https://github.com/tu-usuario/script-traductor
+git clone https://github.com/jmtm141097/LexiDive
 cd script-traductor
 
 # 2. Instalar dependencias
