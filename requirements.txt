@@ -1,0 +1,9 @@
+ebooklib>=0.18
+beautifulsoup4>=4.12
+deepl>=1.17
+google-generativeai>=0.8
+genanki>=0.13
+eng_to_ipa>=0.0.2
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Immersion Reader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <div class="header-ornament">❧</div>
+      <h1>Immersion Reader</h1>
+      <p class="subtitle">Aprende un idioma leyendo los libros que ya amas</p>
+    </header>
+
+    <!-- Cómo funciona -->
+    <div class="steps-strip">
+      <div class="step">
+        <span class="step-icon">📖</span>
+        <div>
+          <strong>Sube tu libro</strong>
+          <span>Un .epub en el idioma que estudias</span>
+        </div>
+      </div>
+      <div class="step-divider">→</div>
+      <div class="step">
+        <span class="step-icon">✨</span>
+        <div>
+          <strong>Lo procesamos</strong>
+          <span>Anotamos palabras clave con su traducción</span>
+        </div>
+      </div>
+      <div class="step-divider">→</div>
+      <div class="step">
+        <span class="step-icon">🎴</span>
+        <div>
+          <strong>Descarga y aprende</strong>
+          <span>EPUB anotado + tarjetas Anki listas</span>
+        </div>
+      </div>
+    </div>
+
+    <form id="processForm" novalidate>
+
+      <!-- 1. EPUB -->
+      <section class="card">
+        <h2><span class="card-num">1</span> Sube tu libro</h2>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="epubFile" name="epub" accept=".epub" hidden />
+          <div class="drop-content" id="dropContent">
+            <span class="drop-icon">📖</span>
+            <p>Arrastra tu archivo <strong>.epub</strong> aquí</p>
+            <p class="hint">o <button type="button" id="browseBtn">haz clic para seleccionar</button></p>
+          </div>
+          <div class="file-selected" id="fileSelected" hidden>
+            <span class="file-icon">✅</span>
+            <span id="fileName">archivo.epub</span>
+            <button type="button" class="remove-btn" id="removeFile">✕</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Configuración simple -->
+      <section class="card">
+        <h2><span class="card-num">2</span> ¿Cómo quieres aprenderlo?</h2>
+
+        <div class="setting-block">
+          <label class="setting-label">Intensidad de las anotaciones</label>
+          <p class="hint" style="margin-bottom:.8rem">¿Cuántas palabras se reemplazarán con su traducción por párrafo?</p>
+          <div class="preset-row">
+            <button type="button" class="preset-btn" data-intensity="2">
+              <strong>Sutil</strong>
+              <span>Pocas anotaciones, lectura más fluida</span>
+            </button>
+            <button type="button" class="preset-btn preset-btn--active" data-intensity="4">
+              <strong>Normal</strong>
+              <span>Balance ideal para la mayoría</span>
+            </button>
+            <button type="button" class="preset-btn" data-intensity="8">
+              <strong>Intenso</strong>
+              <span>Máximo vocabulario, ideal para estudio</span>
+            </button>
+          </div>
+          <input type="range" id="intensidad" name="intensidad" min="1" max="10" value="4" hidden />
+        </div>
+
+        <div class="setting-block">
+          <label class="setting-label">Idiomas</label>
+          <p class="hint" style="margin-bottom:.8rem">¿En qué idioma está tu libro y a cuál quieres que te traduzca?</p>
+          <div class="lang-selects">
+            <div class="lang-select-wrap">
+              <span class="lang-select-label">Idioma del libro</span>
+              <select name="origen" class="select-field">
+                <option value="es">🇪🇸 Español</option>
+                <option value="en">🇬🇧 Inglés</option>
+                <option value="fr">🇫🇷 Francés</option>
+                <option value="de">🇩🇪 Alemán</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="pt">🇵🇹 Portugués</option>
+                <option value="ja">🇯🇵 Japonés</option>
+                <option value="zh">🇨🇳 Chino</option>
+                <option value="ru">🇷🇺 Ruso</option>
+                <option value="ko">🇰🇷 Coreano</option>
+              </select>
+            </div>
+            <span class="lang-arrow-big">→</span>
+            <div class="lang-select-wrap">
+              <span class="lang-select-label">Traducir al</span>
+              <select name="destino" class="select-field">
+                <option value="en">🇬🇧 Inglés</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Francés</option>
+                <option value="de">🇩🇪 Alemán</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="pt">🇵🇹 Portugués</option>
+                <option value="ja">🇯🇵 Japonés</option>
+                <option value="zh">🇨🇳 Chino</option>
+                <option value="ru">🇷🇺 Ruso</option>
+                <option value="ko">🇰🇷 Coreano</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-block" style="margin-bottom:0">
+          <label class="toggle-label">
+            <div class="toggle-text">
+              <strong>Generar tarjetas Anki</strong>
+              <span class="hint">
+                Crea un mazo de memoria con todas las palabras nuevas, listo para
+                importar en <a href="https://apps.ankiweb.net" target="_blank" rel="noopener">Anki</a>
+                (app gratuita de flashcards)
+              </span>
+            </div>
+            <div class="toggle-wrap">
+              <input type="checkbox" id="ankiToggle" checked />
+              <span class="toggle-slider"></span>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- 3. Opciones avanzadas (colapsadas) -->
+      <details class="card card--details">
+        <summary class="details-summary">
+          <span>⚙ Opciones avanzadas</span>
+          <span class="details-hint">Diccionario, DeepL API y más</span>
+        </summary>
+
+        <div class="details-body">
+
+          <div class="setting-block">
+            <label class="setting-label">Diccionario base</label>
+            <div class="radio-group" id="dictRadioGroup">
+              <!-- Populated dynamically based on selected languages -->
+              <label class="radio-option">
+                <input type="radio" name="diccionario_tipo" value="ninguno" checked />
+                <div class="radio-content">
+                  <strong>Sin diccionario base</strong>
+                  <span class="hint">Solo usará las traducciones de DeepL (requiere API Key)</span>
+                </div>
+              </label>
+            </div>
+            <div id="customDictSection" hidden style="margin-top:.75rem">
+              <input type="file" name="diccionario_json" accept=".json" class="input-field" id="dictFile" />
+            </div>
+          </div>
+
+          <div class="setting-block">
+            <label class="setting-label">
+              Proveedor de traducción <span class="badge">opcional</span>
+            </label>
+            <p class="hint" style="margin-bottom:.75rem">
+              Necesario para traducir palabras que no estén en el diccionario base.
+            </p>
+            <div class="radio-group" style="margin-bottom:.75rem">
+              <label class="radio-option">
+                <input type="radio" name="traductor_proveedor" value="deepl" checked />
+                <div class="radio-content">
+                  <strong>DeepL</strong>
+                  <span class="hint">Motor de traducción profesional.
+                    <a href="https://www.deepl.com/pro#developer" target="_blank" rel="noopener">Obtén una clave gratis →</a>
+                  </span>
+                </div>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="traductor_proveedor" value="google" />
+                <div class="radio-content">
+                  <strong>Google AI (Gemini)</strong>
+                  <span class="hint">Traducción potenciada por IA generativa.
+                    <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Obtén una clave gratis →</a>
+                  </span>
+                </div>
+              </label>
+            </div>
+            <div id="deeplKeySection">
+              <input
+                type="text"
+                id="deeplKey"
+                name="deepl_key"
+                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx"
+                class="input-field"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+            <div id="googleKeySection" hidden>
+              <input
+                type="text"
+                id="googleKey"
+                name="google_key"
+                placeholder="AIzaSy..."
+                class="input-field"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+          </div>
+
+          <div class="setting-block">
+            <label class="setting-label" for="maxPalabras">Máximo de palabras a procesar</label>
+            <p class="hint" style="margin-bottom:.5rem">Cuántas palabras distintas extraer y anotar del libro</p>
+            <input type="number" id="maxPalabras" name="max_palabras" value="500" min="10" max="5000" class="input-sm" />
+          </div>
+
+          <div class="setting-block" style="margin-bottom:0">
+            <label class="setting-label">Semilla aleatoria</label>
+            <p class="hint" style="margin-bottom:.5rem">
+              Activa para que el proceso sea reproducible — siempre se elegirán las mismas palabras
+            </p>
+            <div class="seed-row">
+              <input type="checkbox" id="semillaCheck" />
+              <input type="number" id="semillaInput" value="42" class="input-sm" disabled placeholder="42" />
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <button type="submit" class="btn-primary" id="submitBtn">
+        Procesar mi libro
+      </button>
+
+    </form>
+
+    <!-- Progreso -->
+    <section class="card" id="progressSection" hidden>
+      <h2 id="progressTitle">Procesando tu libro…</h2>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <p class="progress-msg" id="progressMsg">Iniciando…</p>
+    </section>
+
+    <!-- Resultados -->
+    <section class="card card--success" id="resultsSection" hidden>
+      <div class="results-header">
+        <span class="results-icon">✨</span>
+        <h2>¡Tu libro está listo!</h2>
+      </div>
+      <div class="stats" id="statsBox"></div>
+      <div class="downloads">
+        <a class="btn-download" id="dlEpub">
+          <span class="dl-icon">📖</span>
+          <div class="dl-text">
+            <strong>EPUB anotado</strong>
+            <span>Tu libro con las traducciones resaltadas</span>
+          </div>
+        </a>
+        <a class="btn-download" id="dlJson">
+          <span class="dl-icon">📄</span>
+          <div class="dl-text">
+            <strong>Diccionario JSON</strong>
+            <span>Todas las palabras y sus traducciones</span>
+          </div>
+        </a>
+        <a class="btn-download btn-download--anki" id="dlApkg">
+          <span class="dl-icon">🎴</span>
+          <div class="dl-text">
+            <strong>Mazo Anki</strong>
+            <span>Tarjetas listas para memorizar</span>
+          </div>
+        </a>
+        <a class="btn-download btn-download--dict" id="dlDict">
+          <span class="dl-icon">📚</span>
+          <div class="dl-text">
+            <strong>Diccionario KOReader</strong>
+            <span>Instala en KOReader para ver traducciones al presionar las palabras</span>
+          </div>
+        </a>
+      </div>
+      <button class="btn-secondary" id="newJobBtn" style="margin-top:1.25rem;width:100%">
+        Procesar otro libro
+      </button>
+    </section>
+
+    <!-- Error -->
+    <section class="card card--error" id="errorSection" hidden>
+      <h2>Algo salió mal</h2>
+      <p id="errorMsg"></p>
+      <button class="btn-secondary" id="retryBtn">Intentar de nuevo</button>
+    </section>
+
+    <footer>
+      <p>Immersion Reader · Aprende mientras lees</p>
+    </footer>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
