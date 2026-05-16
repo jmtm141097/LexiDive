@@ -1,5 +1,8 @@
 .superpowers
 .agents
-__pycache__
-venv
+__pycache__/
+*.pyc
+venv/
 skills-lock.json
+*.epub
+*.apkg
