@@ -76,16 +76,24 @@ def _user_friendly_error(exc: Exception) -> str:
     cls_name = type(exc).__name__
     msg = str(exc)
 
+    # Type checks first (most specific)
+    if isinstance(exc, ValueError):
+        # Only pass through messages from our own controlled raises
+        safe_keywords = ("diccionario", "api key", "proporciona", "vacío")
+        if any(kw in msg.lower() for kw in safe_keywords):
+            return msg
+        return "Error de validación al procesar el libro. Verifica los parámetros e inténtalo de nuevo."
+    if isinstance(exc, FileNotFoundError):
+        return "Error al leer el archivo. Verifica que el epub no esté dañado."
+
+    # Class name checks for known API exceptions
     if "AuthorizationException" in cls_name or "authorization" in msg.lower():
         return "API key inválida. Verifica que sea correcta e inténtalo de nuevo."
     if "QuotaExceededException" in cls_name or "quota" in msg.lower():
         return "Límite de caracteres de la API alcanzado. Intenta más tarde o usa un diccionario base."
-    if "ConnectionException" in cls_name or "connection" in msg.lower():
+    if "ConnectionException" in cls_name:
         return "Error de conexión con el proveedor de traducción. Intenta más tarde."
-    if isinstance(exc, (ValueError, FileNotFoundError)):
-        return msg
-    if "diccionario" in msg.lower() or "dictionary" in msg.lower():
-        return msg
+
     return "Error interno al procesar el libro. Intenta de nuevo con otro archivo."
 
 
