@@ -71,6 +71,24 @@ def _schedule_cleanup(tmpdir: str, delay: int = 3600):
     t.start()
 
 
+def _user_friendly_error(exc: Exception) -> str:
+    """Map exceptions to user-friendly Spanish messages without leaking internals."""
+    cls_name = type(exc).__name__
+    msg = str(exc)
+
+    if "AuthorizationException" in cls_name or "authorization" in msg.lower():
+        return "API key inválida. Verifica que sea correcta e inténtalo de nuevo."
+    if "QuotaExceededException" in cls_name or "quota" in msg.lower():
+        return "Límite de caracteres de la API alcanzado. Intenta más tarde o usa un diccionario base."
+    if "ConnectionException" in cls_name or "connection" in msg.lower():
+        return "Error de conexión con el proveedor de traducción. Intenta más tarde."
+    if isinstance(exc, (ValueError, FileNotFoundError)):
+        return msg
+    if "diccionario" in msg.lower() or "dictionary" in msg.lower():
+        return msg
+    return "Error interno al procesar el libro. Intenta de nuevo con otro archivo."
+
+
 def _run_pipeline(job_id: str, params: dict):
     from immersion.extractor import extraer_vocab
     from immersion.traductor import cargar_diccionario, guardar_diccionario, traducir_palabras, traducir_palabras_google
@@ -155,7 +173,7 @@ def _run_pipeline(job_id: str, params: dict):
                     has_dict=ruta_zip.exists())
 
     except Exception as exc:
-        _update_job(job_id, status="error", message=str(exc), progress=0)
+        _update_job(job_id, status="error", message=_user_friendly_error(exc), progress=0)
 
 
 @app.get("/diccionarios")
