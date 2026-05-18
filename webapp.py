@@ -3,17 +3,28 @@ import json
 import shutil
 import tempfile
 import threading
+import time
 import uuid
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
 import uvicorn
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 ROOT = Path(__file__).parent
 DICT_DIR = ROOT / "diccionarios"
+
+MAX_EPUB_BYTES = 50 * 1024 * 1024  # 50 MB
+MAX_JOBS = 500
+JOB_TTL_SECONDS = 7200  # 2 horas
+
+limiter = Limiter(key_func=get_remote_address)
 
 _DICT_NOMBRES = {
     "fantasia": "Fantasía medieval",
@@ -26,7 +37,19 @@ _DICT_NOMBRES = {
 def _dict_nombre(tipo: str) -> str:
     return _DICT_NOMBRES.get(tipo, tipo.replace("_", " ").title())
 
-app = FastAPI(title="Immersion Reader")
+def _warm_dict_cache() -> None:
+    pass
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    _warm_dict_cache()
+    yield
+
+
+app = FastAPI(title="Immersion Reader", lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
 _lock = threading.Lock()
@@ -169,7 +192,9 @@ async def index():
 
 
 @app.post("/process")
+@limiter.limit("5/minute")
 async def process(
+    request: Request,
     epub: UploadFile = File(...),
     deepl_key: Optional[str] = Form(None),
     google_key: Optional[str] = Form(None),
@@ -190,7 +215,14 @@ async def process(
     tmp = Path(tmpdir)
 
     epub_path = tmp / epub.filename
-    epub_path.write_bytes(await epub.read())
+    content = await epub.read()
+    if len(content) > MAX_EPUB_BYTES:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        raise HTTPException(
+            400,
+            f"El archivo supera el límite de {MAX_EPUB_BYTES // (1024 * 1024)} MB"
+        )
+    epub_path.write_bytes(content)
     salida_path = tmp / (epub_path.stem + "_anotado.epub")
 
     ruta_diccionario = None
