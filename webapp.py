@@ -215,20 +215,31 @@ async def process(
     tmp = Path(tmpdir)
 
     epub_path = tmp / epub.filename
-    content = await epub.read()
-    if len(content) > MAX_EPUB_BYTES:
-        shutil.rmtree(tmpdir, ignore_errors=True)
-        raise HTTPException(
-            400,
-            f"El archivo supera el límite de {MAX_EPUB_BYTES // (1024 * 1024)} MB"
-        )
-    epub_path.write_bytes(content)
+    content = bytearray()
+    while True:
+        chunk = await epub.read(65536)
+        if not chunk:
+            break
+        content += chunk
+        if len(content) > MAX_EPUB_BYTES:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+            raise HTTPException(
+                400,
+                f"El archivo supera el límite de {MAX_EPUB_BYTES // (1024 * 1024)} MB"
+            )
+    epub_path.write_bytes(bytes(content))
     salida_path = tmp / (epub_path.stem + "_anotado.epub")
 
     ruta_diccionario = None
     if diccionario_tipo == "propio" and diccionario_json:
         dict_path = tmp / "diccionario_custom.json"
-        dict_path.write_bytes(await diccionario_json.read())
+        dict_bytes = await diccionario_json.read()
+        try:
+            json.loads(dict_bytes)
+        except (json.JSONDecodeError, ValueError):
+            shutil.rmtree(tmpdir, ignore_errors=True)
+            raise HTTPException(400, "El diccionario JSON no es válido")
+        dict_path.write_bytes(dict_bytes)
         ruta_diccionario = str(dict_path)
     elif diccionario_tipo not in ("propio", "ninguno"):
         builtin = DICT_DIR / f"{diccionario_tipo}.json"
