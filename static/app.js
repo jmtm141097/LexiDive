@@ -140,9 +140,6 @@ const _LANG_NAMES = {
 };
 function langName(code) { return _LANG_NAMES[code] || code.toUpperCase(); }
 
-document.querySelector('select[name="origen"]').addEventListener('change', loadDiccionarios);
-document.querySelector('select[name="destino"]').addEventListener('change', loadDiccionarios);
-
 loadDiccionarios();
 
 // ── Translation provider toggle ───────────────────────────────────────────────
@@ -183,8 +180,8 @@ document.querySelector('select[name="origen"]').addEventListener('change', () =>
     const opts = document.querySelectorAll('select[name="destino"] option');
     const fallback = [...opts].find(o => o.value !== origen);
     if (fallback) document.querySelector('select[name="destino"]').value = fallback.value;
-    loadDiccionarios();
   }
+  loadDiccionarios();
 });
 
 document.querySelector('select[name="destino"]').addEventListener('change', () => {
@@ -194,8 +191,8 @@ document.querySelector('select[name="destino"]').addEventListener('change', () =
     const opts = document.querySelectorAll('select[name="origen"] option');
     const fallback = [...opts].find(o => o.value !== destino);
     if (fallback) document.querySelector('select[name="origen"]').value = fallback.value;
-    loadDiccionarios();
   }
+  loadDiccionarios();
 });
 
 // ── Form submit ───────────────────────────────────────────────────────────────
