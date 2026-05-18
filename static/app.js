@@ -173,6 +173,16 @@ document.getElementById('processForm').addEventListener('submit', async e => {
     return;
   }
 
+  const dictTipo = (document.querySelector('input[name="diccionario_tipo"]:checked') || {}).value || 'ninguno';
+  const deepKey = document.getElementById('deeplKey').value.trim();
+  const googleKey = document.getElementById('googleKey').value.trim();
+  if (dictTipo === 'ninguno' && !deepKey && !googleKey) {
+    document.querySelector('.card--details').open = true;
+    document.querySelector('.card--details').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    alert('Para procesar tu libro necesitas al menos una de estas opciones:\n\n• Un diccionario base (selecciona uno en Opciones avanzadas)\n• Una API key de DeepL o Google AI');
+    return;
+  }
+
   const fd = new FormData(e.target);
 
   // sin_anki: the backend expects true when NOT generating the deck
@@ -231,7 +241,7 @@ function startPolling() {
         showResults(data.stats, currentJobId);
       } else if (data.status === 'error') {
         clearInterval(pollTimer);
-        umami.track('error_procesamiento');
+        umami.track('error_procesamiento', { mensaje: data.message });
         showError(data.message);
       }
     } catch {
