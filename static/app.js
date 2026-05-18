@@ -92,7 +92,7 @@ async function loadDiccionarios() {
       <input type="radio" name="diccionario_tipo" value="${d.id}" ${currentVal === d.id ? 'checked' : ''} />
       <div class="radio-content">
         <strong>${d.nombre}</strong>
-        <span class="hint">${d.palabras} palabras ${langName(d.origen)} → ${langName(d.destino)}. Funciona sin internet.</span>
+        <span class="hint">${d.palabras} palabras ${langName(d.origen)} → ${langName(d.destino)}. No requiere API key.</span>
       </div>
     </label>`).join('');
 
