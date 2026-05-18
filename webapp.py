@@ -71,6 +71,27 @@ def _schedule_cleanup(tmpdir: str, delay: int = 3600):
     t.start()
 
 
+def _evict_old_jobs() -> None:
+    """Remove completed/errored jobs older than JOB_TTL_SECONDS. Cap at MAX_JOBS."""
+    now = time.time()
+    to_delete = [
+        jid for jid, job in jobs.items()
+        if job["status"] in ("done", "error")
+        and now - job.get("created_at", now) > JOB_TTL_SECONDS
+    ]
+    for jid in to_delete:
+        del jobs[jid]
+
+    if len(jobs) > MAX_JOBS:
+        overflow = sorted(
+            [(jid, job["created_at"]) for jid, job in jobs.items()
+             if job["status"] in ("done", "error")],
+            key=lambda x: x[1],
+        )
+        for jid, _ in overflow[: len(jobs) - MAX_JOBS]:
+            del jobs[jid]
+
+
 def _user_friendly_error(exc: Exception) -> str:
     """Map exceptions to user-friendly Spanish messages without leaking internals."""
     cls_name = type(exc).__name__
@@ -288,6 +309,7 @@ async def process(
     )
 
     with _lock:
+        _evict_old_jobs()
         jobs[job_id] = {
             "status": "pending",
             "message": "Iniciando...",
@@ -295,6 +317,7 @@ async def process(
             "stats": None,
             "tmpdir": tmpdir,
             "stem": salida_path.stem,
+            "created_at": time.time(),
             "files": {
                 "epub": str(salida_path),
                 "json": str(salida_path.with_suffix(".json")),
