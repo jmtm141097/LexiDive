@@ -37,8 +37,36 @@ _DICT_NOMBRES = {
 def _dict_nombre(tipo: str) -> str:
     return _DICT_NOMBRES.get(tipo, tipo.replace("_", " ").title())
 
+
+_dict_cache: list | None = None
+
+
+def _build_dict_list() -> list:
+    result = []
+    for f in sorted(DICT_DIR.glob("*.json")):
+        parts = f.stem.split("_", 2)
+        if len(parts) < 3:
+            continue
+        orig, dest, tipo = parts[0], parts[1], "_".join(parts[2:])
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+            palabras = len(data)
+        except Exception:
+            continue
+        result.append({
+            "id": f.stem,
+            "origen": orig,
+            "destino": dest,
+            "tipo": tipo,
+            "nombre": _dict_nombre(tipo),
+            "palabras": palabras,
+        })
+    return result
+
+
 def _warm_dict_cache() -> None:
-    pass
+    global _dict_cache
+    _dict_cache = _build_dict_list()
 
 
 @asynccontextmanager
@@ -207,29 +235,12 @@ def _run_pipeline(job_id: str, params: dict):
 
 @app.get("/diccionarios")
 async def listar_diccionarios(origen: Optional[str] = None, destino: Optional[str] = None):
-    result = []
-    for f in sorted(DICT_DIR.glob("*.json")):
-        parts = f.stem.split("_", 2)
-        if len(parts) < 3:
-            continue
-        orig, dest, tipo = parts[0], parts[1], "_".join(parts[2:])
-        if origen and orig != origen:
-            continue
-        if destino and dest != destino:
-            continue
-        try:
-            data = json.loads(f.read_text(encoding="utf-8"))
-            palabras = len(data)
-        except Exception:
-            continue
-        result.append({
-            "id": f.stem,
-            "origen": orig,
-            "destino": dest,
-            "tipo": tipo,
-            "nombre": _dict_nombre(tipo),
-            "palabras": palabras,
-        })
+    cache = _dict_cache if _dict_cache is not None else _build_dict_list()
+    result = [
+        d for d in cache
+        if (not origen or d["origen"] == origen)
+        and (not destino or d["destino"] == destino)
+    ]
     return result
 
 
