@@ -140,9 +140,6 @@ const _LANG_NAMES = {
 };
 function langName(code) { return _LANG_NAMES[code] || code.toUpperCase(); }
 
-document.querySelector('select[name="origen"]').addEventListener('change', loadDiccionarios);
-document.querySelector('select[name="destino"]').addEventListener('change', loadDiccionarios);
-
 loadDiccionarios();
 
 // ── Translation provider toggle ───────────────────────────────────────────────
@@ -163,6 +160,41 @@ semillaCheck.addEventListener('change', () => {
   semillaInput.disabled = !semillaCheck.checked;
 });
 
+// ── Language pair validation ──────────────────────────────────────────────────────────
+
+function validateLanguages() {
+  const origen = document.querySelector('select[name="origen"]').value;
+  const destino = document.querySelector('select[name="destino"]').value;
+  if (origen === destino) {
+    document.querySelector('select[name="destino"]').focus();
+    alert('El idioma del libro y el idioma de traducción deben ser diferentes.');
+    return false;
+  }
+  return true;
+}
+
+document.querySelector('select[name="origen"]').addEventListener('change', () => {
+  const origen = document.querySelector('select[name="origen"]').value;
+  const destino = document.querySelector('select[name="destino"]').value;
+  if (origen === destino) {
+    const opts = document.querySelectorAll('select[name="destino"] option');
+    const fallback = [...opts].find(o => o.value !== origen);
+    if (fallback) document.querySelector('select[name="destino"]').value = fallback.value;
+  }
+  loadDiccionarios();
+});
+
+document.querySelector('select[name="destino"]').addEventListener('change', () => {
+  const origen = document.querySelector('select[name="origen"]').value;
+  const destino = document.querySelector('select[name="destino"]').value;
+  if (origen === destino) {
+    const opts = document.querySelectorAll('select[name="origen"] option');
+    const fallback = [...opts].find(o => o.value !== destino);
+    if (fallback) document.querySelector('select[name="origen"]').value = fallback.value;
+  }
+  loadDiccionarios();
+});
+
 // ── Form submit ───────────────────────────────────────────────────────────────
 
 document.getElementById('processForm').addEventListener('submit', async e => {
@@ -172,6 +204,8 @@ document.getElementById('processForm').addEventListener('submit', async e => {
     alert('Por favor selecciona un archivo .epub');
     return;
   }
+
+  if (!validateLanguages()) return;
 
   const dictTipo = (document.querySelector('input[name="diccionario_tipo"]:checked') || {}).value || 'ninguno';
   const deepKey = document.getElementById('deeplKey').value.trim();

@@ -7,3 +7,4 @@ eng_to_ipa>=0.0.2
 fastapi>=0.111
 uvicorn[standard]>=0.29
 python-multipart>=0.0.9
+slowapi>=0.1.9
