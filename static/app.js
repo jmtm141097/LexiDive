@@ -187,6 +187,17 @@ document.querySelector('select[name="origen"]').addEventListener('change', () =>
   }
 });
 
+document.querySelector('select[name="destino"]').addEventListener('change', () => {
+  const origen = document.querySelector('select[name="origen"]').value;
+  const destino = document.querySelector('select[name="destino"]').value;
+  if (origen === destino) {
+    const opts = document.querySelectorAll('select[name="origen"] option');
+    const fallback = [...opts].find(o => o.value !== destino);
+    if (fallback) document.querySelector('select[name="origen"]').value = fallback.value;
+    loadDiccionarios();
+  }
+});
+
 // ── Form submit ───────────────────────────────────────────────────────────────
 
 document.getElementById('processForm').addEventListener('submit', async e => {
