@@ -494,21 +494,6 @@ code {
   box-shadow: 0 0 0 3px rgba(181, 101, 29, 0.1);
 }
 
-.input-sm {
-  padding: 0.45rem 0.7rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.88rem;
-  color: var(--ink);
-  background: var(--warm-white);
-  outline: none;
-  width: 90px;
-  transition: border-color 0.2s;
-  font-family: 'Lora', serif;
-}
-
-.input-sm:focus { border-color: var(--accent); }
-
 /* ── Radio group ────────────────────────────────────────────────── */
 .radio-group {
   display: flex;
@@ -546,20 +531,6 @@ code {
 }
 
 .radio-content .hint { margin-top: 0.1rem; }
-
-/* ── Seed ───────────────────────────────────────────────────────── */
-.seed-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.seed-row input[type="checkbox"] {
-  accent-color: var(--accent);
-  width: 16px; height: 16px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
 
 /* ── Buttons ─────────────────────────────────────────────────────── */
 .btn-primary {
