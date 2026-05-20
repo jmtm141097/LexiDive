@@ -196,8 +196,7 @@ document.querySelector('select[name="destino"]').addEventListener('change', () =
 
 // ── Form submit ───────────────────────────────────────────────────────────────
 
-document.getElementById('processForm').addEventListener('submit', e => {
-  e.preventDefault();
+document.getElementById('submitBtn').addEventListener('click', () => {
   _doSubmit().catch(err => showError('Error inesperado: ' + err.message));
 });
 
