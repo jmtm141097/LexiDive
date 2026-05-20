@@ -58,14 +58,22 @@ function clearEpub() {
 // ── Intensity presets ─────────────────────────────────────────────────────────
 
 const intensidadInput = document.getElementById('intensidad');
+const maxPalabrasInput = document.getElementById('maxPalabrasHidden');
+
+const PRESET_MAX_PALABRAS = { '2': 300, '4': 500, '8': 800 };
 
 document.querySelectorAll('.preset-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('preset-btn--active'));
     btn.classList.add('preset-btn--active');
     intensidadInput.value = btn.dataset.intensity;
+    maxPalabrasInput.value = PRESET_MAX_PALABRAS[btn.dataset.intensity] ?? 500;
   });
 });
+
+// Sync maxPalabras from the initially-active preset on page load
+const _activePreset = document.querySelector('.preset-btn--active');
+if (_activePreset) maxPalabrasInput.value = PRESET_MAX_PALABRAS[_activePreset.dataset.intensity] ?? 500;
 
 // ── Anki toggle ───────────────────────────────────────────────────────────────
 
@@ -151,15 +159,6 @@ document.querySelectorAll('input[name="traductor_proveedor"]').forEach(radio => 
   });
 });
 
-// ── Seed checkbox ─────────────────────────────────────────────────────────────
-
-const semillaCheck = document.getElementById('semillaCheck');
-const semillaInput = document.getElementById('semillaInput');
-
-semillaCheck.addEventListener('change', () => {
-  semillaInput.disabled = !semillaCheck.checked;
-});
-
 // ── Language pair validation ──────────────────────────────────────────────────────────
 
 function validateLanguages() {
@@ -221,11 +220,6 @@ document.getElementById('processForm').addEventListener('submit', async e => {
 
   // sin_anki: the backend expects true when NOT generating the deck
   fd.set('sin_anki', (!ankiToggle.checked).toString());
-
-  // Seed: only include if the checkbox is active
-  if (semillaCheck.checked && semillaInput.value) {
-    fd.set('semilla', semillaInput.value);
-  }
 
   // Remove custom dict file if not needed
   if (fd.get('diccionario_tipo') !== 'propio') fd.delete('diccionario_json');
