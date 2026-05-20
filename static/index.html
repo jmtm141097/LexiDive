@@ -78,6 +78,20 @@
       <section class="card">
         <h2><span class="card-num">2</span> ¿Cómo quieres aprenderlo?</h2>
 
+        <div class="info-block">
+          <p class="info-title">¿Cómo funciona la anotación?</p>
+          <p class="info-body">
+            La app analiza tu libro, extrae las palabras más frecuentes y las reemplaza con su
+            traducción resaltada directamente en el texto. Así puedes leer con fluidez mientras
+            absorbes vocabulario nuevo de forma natural.
+          </p>
+          <p class="info-body">
+            Para mejores resultados, recomendamos usar <strong>DeepL</strong> o <strong>Google AI</strong>
+            — traducen las palabras específicas de tu libro con mucha más precisión que un diccionario
+            genérico. Puedes obtener una clave gratuita en menos de 2 minutos.
+          </p>
+        </div>
+
         <div class="setting-block">
           <label class="setting-label">Intensidad de las anotaciones</label>
           <p class="hint" style="margin-bottom:.8rem">¿Cuántas palabras se reemplazarán con su traducción por párrafo?</p>
@@ -96,6 +110,7 @@
             </button>
           </div>
           <input type="range" id="intensidad" name="intensidad" min="1" max="10" value="4" hidden />
+          <input type="hidden" id="maxPalabrasHidden" name="max_palabras" value="500" />
         </div>
 
         <div class="setting-block">
@@ -228,23 +243,6 @@
                 autocomplete="off"
                 spellcheck="false"
               />
-            </div>
-          </div>
-
-          <div class="setting-block">
-            <label class="setting-label" for="maxPalabras">Máximo de palabras a procesar</label>
-            <p class="hint" style="margin-bottom:.5rem">Cuántas palabras distintas extraer y anotar del libro</p>
-            <input type="number" id="maxPalabras" name="max_palabras" value="500" min="10" max="5000" class="input-sm" />
-          </div>
-
-          <div class="setting-block" style="margin-bottom:0">
-            <label class="setting-label">Semilla aleatoria</label>
-            <p class="hint" style="margin-bottom:.5rem">
-              Activa para que el proceso sea reproducible — siempre se elegirán las mismas palabras
-            </p>
-            <div class="seed-row">
-              <input type="checkbox" id="semillaCheck" />
-              <input type="number" id="semillaInput" value="42" class="input-sm" disabled placeholder="42" />
             </div>
           </div>
 
