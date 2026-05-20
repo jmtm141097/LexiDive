@@ -54,7 +54,7 @@
       </div>
     </div>
 
-    <form id="processForm" novalidate>
+    <form id="processForm" novalidate method="post" action="/process" enctype="multipart/form-data">
 
       <!-- 1. EPUB -->
       <section class="card">
@@ -235,7 +235,7 @@
         </div>
       </details>
 
-      <button type="submit" class="btn-primary" id="submitBtn">
+      <button type="button" class="btn-primary" id="submitBtn">
         Procesar mi libro
       </button>
 
