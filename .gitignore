@@ -6,3 +6,4 @@ venv/
 skills-lock.json
 *.epub
 *.apkg
+CLAUDE.md
