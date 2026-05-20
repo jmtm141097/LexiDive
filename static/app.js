@@ -196,9 +196,12 @@ document.querySelector('select[name="destino"]').addEventListener('change', () =
 
 // ── Form submit ───────────────────────────────────────────────────────────────
 
-document.getElementById('processForm').addEventListener('submit', async e => {
+document.getElementById('processForm').addEventListener('submit', e => {
   e.preventDefault();
+  _doSubmit().catch(err => showError('Error inesperado: ' + err.message));
+});
 
+async function _doSubmit() {
   if (!epubFile.files[0]) {
     alert('Por favor selecciona un archivo .epub');
     return;
@@ -216,7 +219,7 @@ document.getElementById('processForm').addEventListener('submit', async e => {
     return;
   }
 
-  const fd = new FormData(e.target);
+  const fd = new FormData(document.getElementById('processForm'));
 
   // sin_anki: the backend expects true when NOT generating the deck
   fd.set('sin_anki', (!ankiToggle.checked).toString());
@@ -246,7 +249,7 @@ document.getElementById('processForm').addEventListener('submit', async e => {
   } catch (err) {
     showError('Error de conexión: ' + err.message);
   }
-});
+}
 
 // ── Polling ───────────────────────────────────────────────────────────────────
 
