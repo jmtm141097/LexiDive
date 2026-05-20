@@ -11,6 +11,9 @@ from . import pronunciacion
 
 _CACHE: dict[str, re.Pattern] = {}
 
+_DIVISOR: dict[int, int] = {2: 100, 4: 60, 8: 30}  # presets Sutil/Normal/Intenso
+_DIVISOR_FALLBACK = 50  # for custom CLI intensity values outside the preset map
+
 _CSS_TOOLTIP = (
     "mark[data-tooltip]{"
     "position:relative;cursor:help;"
@@ -64,9 +67,12 @@ def anotar_texto(
     texto_trabajo = texto
     texto_lower = texto.lower()
     reemplazos_count = 0
+    word_count = len(texto.split())
+    divisor = _DIVISOR.get(intensidad, _DIVISOR_FALLBACK)
+    cap = max(intensidad, word_count // divisor)
 
     for origen, destino in entradas:
-        if intensidad > 0 and reemplazos_count >= intensidad:
+        if intensidad > 0 and reemplazos_count >= cap:
             break
 
         if origen.lower() not in texto_lower:
