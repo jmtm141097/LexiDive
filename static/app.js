@@ -224,7 +224,7 @@ document.getElementById('processForm').addEventListener('submit', async e => {
   // Remove custom dict file if not needed
   if (fd.get('diccionario_tipo') !== 'propio') fd.delete('diccionario_json');
 
-  umami.track('libro_enviado', {
+  window.umami?.track('libro_enviado', {
     origen: fd.get('origen'),
     destino: fd.get('destino'),
     intensidad: fd.get('intensidad'),
@@ -261,7 +261,7 @@ function startPolling() {
 
       if (data.status === 'done') {
         clearInterval(pollTimer);
-        umami.track('libro_procesado', {
+        window.umami?.track('libro_procesado', {
           capitulos: data.stats?.capitulos,
           palabras_nuevas: data.stats?.palabras_nuevas,
           total_diccionario: data.stats?.total_diccionario,
@@ -269,7 +269,7 @@ function startPolling() {
         showResults(data.stats, currentJobId);
       } else if (data.status === 'error') {
         clearInterval(pollTimer);
-        umami.track('error_procesamiento', { mensaje: data.message });
+        window.umami?.track('error_procesamiento', { mensaje: data.message });
         showError(data.message);
       }
     } catch {
@@ -326,7 +326,7 @@ function setDownload(id, href) {
   const el = document.getElementById(id);
   el.href = href;
   el.classList.remove('unavailable');
-  el.addEventListener('click', () => umami.track('descarga', { tipo: id.replace('dl', '').toLowerCase() }), { once: true });
+  el.addEventListener('click', () => window.umami?.track('descarga', { tipo: id.replace('dl', '').toLowerCase() }), { once: true });
 }
 
 function showError(msg) {
