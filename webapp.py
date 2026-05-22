@@ -1,5 +1,6 @@
 """FastAPI web app for Immersion Reader."""
 import json
+import os
 import shutil
 import tempfile
 import threading
@@ -254,7 +255,6 @@ async def index():
 async def process(
     request: Request,
     epub: UploadFile = File(...),
-    deepl_key: Optional[str] = Form(None),
     google_key: Optional[str] = Form(None),
     diccionario_tipo: str = Form("fantasia"),
     diccionario_json: Optional[UploadFile] = File(None),
@@ -310,7 +310,7 @@ async def process(
         origen=origen,
         destino=destino,
         intensidad=intensidad,
-        api_key=(deepl_key.strip() or None) if deepl_key else None,
+        api_key=os.environ.get("DEEPL_API_KEY"),
         google_api_key=(google_key.strip() or None) if google_key else None,
         ruta_diccionario=ruta_diccionario,
         semilla=semilla,
