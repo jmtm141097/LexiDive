@@ -1,5 +1,6 @@
 """FastAPI web app for Immersion Reader."""
 import json
+import os
 import shutil
 import tempfile
 import threading
@@ -254,7 +255,6 @@ async def index():
 async def process(
     request: Request,
     epub: UploadFile = File(...),
-    deepl_key: Optional[str] = Form(None),
     google_key: Optional[str] = Form(None),
     diccionario_tipo: str = Form("fantasia"),
     diccionario_json: Optional[UploadFile] = File(None),
@@ -304,14 +304,25 @@ async def process(
         if builtin.exists():
             ruta_diccionario = str(builtin)
 
+    deepl_api_key = os.environ.get("DEEPL_API_KEY")
+    google_api_key = (google_key.strip() or None) if google_key else None
+
+    if not deepl_api_key and not google_api_key and not ruta_diccionario:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        raise HTTPException(
+            400,
+            "El servidor no tiene configurada una API key de DeepL. "
+            "Selecciona un diccionario base o usa Google AI con tu propia clave."
+        )
+
     params = dict(
         ruta_epub=str(epub_path),
         ruta_salida=str(salida_path),
         origen=origen,
         destino=destino,
         intensidad=intensidad,
-        api_key=(deepl_key.strip() or None) if deepl_key else None,
-        google_api_key=(google_key.strip() or None) if google_key else None,
+        api_key=deepl_api_key,
+        google_api_key=google_api_key,
         ruta_diccionario=ruta_diccionario,
         semilla=semilla,
         max_palabras=max_palabras,
