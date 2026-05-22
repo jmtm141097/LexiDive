@@ -154,7 +154,6 @@ loadDiccionarios();
 
 document.querySelectorAll('input[name="traductor_proveedor"]').forEach(radio => {
   radio.addEventListener('change', () => {
-    document.getElementById('deeplKeySection').hidden = radio.value !== 'deepl';
     document.getElementById('googleKeySection').hidden = radio.value !== 'google';
   });
 });
@@ -209,12 +208,12 @@ async function _doSubmit() {
   if (!validateLanguages()) return;
 
   const dictTipo = (document.querySelector('input[name="diccionario_tipo"]:checked') || {}).value || 'ninguno';
-  const deepKey = document.getElementById('deeplKey').value.trim();
   const googleKey = document.getElementById('googleKey').value.trim();
-  if (dictTipo === 'ninguno' && !deepKey && !googleKey) {
+  const proveedor = (document.querySelector('input[name="traductor_proveedor"]:checked') || {}).value || 'deepl';
+  if (dictTipo === 'ninguno' && proveedor === 'google' && !googleKey) {
     document.querySelector('.card--details').open = true;
     document.querySelector('.card--details').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    alert('Para procesar tu libro necesitas al menos una de estas opciones:\n\n• Un diccionario base (selecciona uno en Opciones avanzadas)\n• Una API key de DeepL o Google AI');
+    alert('Para procesar tu libro necesitas al menos una de estas opciones:\n\n• Un diccionario base (selecciona uno en Opciones avanzadas)\n• Una API key de Google AI');
     return;
   }
 
